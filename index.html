@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="el">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FVNET — Fotis Vassis · Network, Software & Hardware Solutions</title>
+  <meta name="description" content="Υποδομές δικτύου, servers, ERP και security. Fotis Vassis / FVNET." />
+  <link rel="stylesheet" href="./styles.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.js",
+      "three/addons/": "./vendor/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+  <header>
+    <a class="brand" href="#top">
+      <img src="./logo.png" alt="FVNET" />
+    </a>
+    <nav class="nav" id="nav">
+      <a href="#services">Υπηρεσίες</a>
+      <a href="#why">Υποδομή</a>
+      <a href="#contact">Επικοινωνία</a>
+    </nav>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button class="menu-btn" id="menu" type="button">Menu</button>
+      <a class="btn btn-primary" href="#contact">Επικοινωνία</a>
+    </div>
+  </header>
+
+  <section class="hero" id="top" style="max-width:none;padding:0 32px 88px;display:grid;place-items:end start;min-height:100vh">
+    <canvas id="webgl"></canvas>
+    <div class="hero-fade"></div>
+    <div class="hero-copy">
+      <div class="kicker">Fotis Vassis · FVNET</div>
+      <h1>Network.<br/>Software.<br/>Hardware.</h1>
+      <p class="sub">Network, Software & Hardware Solutions</p>
+      <p class="el">Υποδομές δικτύου, servers, ERP και security. On-prem και cloud, με 24/7 απομακρυσμένη διαχείριση.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#contact">Επικοινωνία</a>
+        <a class="btn btn-ghost" href="#services">Υπηρεσίες</a>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section id="services">
+      <div class="section-label">Υπηρεσίες</div>
+      <h2>Το φάσμα, χωρίς θόρυβο.</h2>
+      <div class="grid-3">
+        <article class="card">
+          <h3>Infrastructure</h3>
+          <ul>
+            <li>Network Infrastructure</li>
+            <li>Backup & Restore Solutions</li>
+            <li>Routing-Firewall-VPN Connectivity</li>
+            <li>Multi WAN Load Balancing-Failover</li>
+            <li>Draytek, Zyxel Firewall-Routers</li>
+            <li>OPNsense UTM deployment</li>
+            <li>Provision ISR CCTV</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Software / ERP</h3>
+          <ul>
+            <li>Epsilon Software</li>
+            <li>Softone ERP Server-Client-SaaS</li>
+            <li>Pylon Cloud & OnPremises</li>
+            <li>Siemens CFD Solutions</li>
+            <li>Google Workspace-MS365-Zoho EU</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>Servers & ops</h3>
+          <ul>
+            <li>Windows Server – SQL</li>
+            <li>Alma Linux, Ubuntu Server</li>
+            <li>Hetzner Cloud VM</li>
+            <li>NAS-SAN Implementation</li>
+            <li>Server-PC-Laptop Service & Repair</li>
+            <li>Security-Auditing-Backup</li>
+            <li>24/7 Remote Administration & Monitoring</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="why" class="why">
+      <div class="section-label">Υποδομή</div>
+      <h2>Γιατί FVNET</h2>
+      <p>Σχεδιασμός και λειτουργία δικτύων, servers και ERP με έμφαση στην ασφάλεια. Υποστήριξη 24/7, on-premises και cloud, από ένα σημείο επαφής.</p>
+      <div class="pills">
+        <span class="pill">24/7 remote admin</span>
+        <span class="pill">On-prem + cloud</span>
+        <span class="pill">Security-first</span>
+        <span class="pill">ERP · UTM · CCTV</span>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="section-label">Επικοινωνία</div>
+      <h2>Ας το δούμε μαζί.</h2>
+      <div class="contact">
+        <div class="panel">
+          <div class="row"><span>Όνομα</span><strong>Fotis Vassis</strong></div>
+          <div class="row"><span>Phone</span><a href="tel:+302122132664">+30 212 213 2664</a></div>
+          <div class="row"><span>Mobile</span><a href="tel:+306944632229">+30 694 463 2229</a></div>
+          <div class="row"><span>Email</span><a href="mailto:info@fvnet.gr">info@fvnet.gr</a></div>
+          <div class="links">
+            <a class="btn btn-primary" href="tel:+306944632229">Κλήση</a>
+            <a class="btn btn-ghost" href="mailto:info@fvnet.gr">Email</a>
+            <a class="btn btn-ghost" href="viber://chat?number=306944632229">Viber</a>
+            <a class="btn btn-ghost" href="https://www.linkedin.com/in/fotis-vassis-8a907289" target="_blank" rel="noopener">LinkedIn</a>
+            <a class="btn btn-ghost" href="https://download.anydesk.com/AnyDesk.exe">AnyDesk</a>
+          </div>
+        </div>
+        <div>
+          <p class="el">Για remote support, AnyDesk ή απευθείας κλήση / Viber. Το live site παραμένει το fvnet.gr μέχρι να πεις αλλιώς.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© Fotis Vassis / FVNET</span>
+    <span>fvnet.gr · demo</span>
+  </footer>
+
+  <script type="module" src="./scene.js"></script>
+  <script>
+    const btn = document.getElementById("menu");
+    const nav = document.getElementById("nav");
+    btn.addEventListener("click", () => nav.classList.toggle("open"));
+  </script>
+</body>
+</html>
