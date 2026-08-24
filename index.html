@@ -17,28 +17,30 @@
 </head>
 <body>
   <div class="grain" aria-hidden="true"></div>
+  <div class="scene" id="scene" aria-hidden="true">
+    <canvas id="webgl"></canvas>
+  </div>
   <header>
     <a class="brand" href="#top">
-      <img src="./logo.png" alt="FVNET" />
+      <span class="brand-mark">FVNET</span>
+      <span class="brand-dot" aria-hidden="true"></span>
     </a>
     <nav class="nav" id="nav">
       <a href="#services">Υπηρεσίες</a>
       <a href="#why">Υποδομή</a>
       <a href="#contact">Επικοινωνία</a>
     </nav>
-    <div style="display:flex;gap:10px;align-items:center">
+    <div class="header-actions">
       <button class="menu-btn" id="menu" type="button">Menu</button>
       <a class="btn btn-primary" href="#contact">Επικοινωνία</a>
     </div>
   </header>
 
-  <section class="hero" id="top" style="max-width:none;padding:0 32px 88px;display:grid;place-items:end start;min-height:100vh">
-    <canvas id="webgl"></canvas>
+  <section class="hero" id="top">
     <div class="hero-fade"></div>
     <div class="hero-copy">
       <div class="kicker">Fotis Vassis · FVNET</div>
       <h1>Network.<br/>Software.<br/>Hardware.</h1>
-      <p class="sub">Network, Software & Hardware Solutions</p>
       <p class="el">Υποδομές δικτύου, servers, ERP και security. On-prem και cloud, με 24/7 απομακρυσμένη διαχείριση.</p>
       <div class="hero-actions">
         <a class="btn btn-primary" href="#contact">Επικοινωνία</a>
@@ -51,17 +53,15 @@
     <section id="services">
       <div class="section-label">Υπηρεσίες</div>
       <h2>Το φάσμα, χωρίς θόρυβο.</h2>
-      <div class="grid-3">
-        <article class="card">
+      <div class="services-grid">
+        <article class="card featured">
           <h3>Infrastructure</h3>
           <ul>
             <li>Network Infrastructure</li>
-            <li>Backup & Restore Solutions</li>
             <li>Routing-Firewall-VPN Connectivity</li>
             <li>Multi WAN Load Balancing-Failover</li>
-            <li>Draytek, Zyxel Firewall-Routers</li>
             <li>OPNsense UTM deployment</li>
-            <li>Provision ISR CCTV</li>
+            <li>Backup & Restore Solutions</li>
           </ul>
         </article>
         <article class="card">
@@ -79,9 +79,7 @@
           <ul>
             <li>Windows Server – SQL</li>
             <li>Alma Linux, Ubuntu Server</li>
-            <li>Hetzner Cloud VM</li>
             <li>NAS-SAN Implementation</li>
-            <li>Server-PC-Laptop Service & Repair</li>
             <li>Security-Auditing-Backup</li>
             <li>24/7 Remote Administration & Monitoring</li>
           </ul>
@@ -93,11 +91,11 @@
       <div class="section-label">Υποδομή</div>
       <h2>Γιατί FVNET</h2>
       <p>Σχεδιασμός και λειτουργία δικτύων, servers και ERP με έμφαση στην ασφάλεια. Υποστήριξη 24/7, on-premises και cloud, από ένα σημείο επαφής.</p>
-      <div class="pills">
-        <span class="pill">24/7 remote admin</span>
-        <span class="pill">On-prem + cloud</span>
-        <span class="pill">Security-first</span>
-        <span class="pill">ERP · UTM · CCTV</span>
+      <div class="metrics">
+        <div class="metric">24/7</div>
+        <div class="metric">on-prem+cloud</div>
+        <div class="metric">UTM</div>
+        <div class="metric">ERP</div>
       </div>
     </section>
 
@@ -113,21 +111,15 @@
           <div class="links">
             <a class="btn btn-primary" href="tel:+306944632229">Κλήση</a>
             <a class="btn btn-ghost" href="mailto:info@fvnet.gr">Email</a>
-            <a class="btn btn-ghost" href="viber://chat?number=306944632229">Viber</a>
-            <a class="btn btn-ghost" href="https://www.linkedin.com/in/fotis-vassis-8a907289" target="_blank" rel="noopener">LinkedIn</a>
-            <a class="btn btn-ghost" href="https://download.anydesk.com/AnyDesk.exe">AnyDesk</a>
           </div>
-        </div>
-        <div>
-          <p class="el">Για remote support, AnyDesk ή απευθείας κλήση / Viber. Το live site παραμένει το fvnet.gr μέχρι να πεις αλλιώς.</p>
         </div>
       </div>
     </section>
   </main>
 
   <footer>
+    <img class="footer-logo" src="./logo.png" alt="FVNET — Fotis Vassis, network, software & hardware solutions" />
     <span>© Fotis Vassis / FVNET</span>
-    <span>fvnet.gr · demo</span>
   </footer>
 
   <script type="module" src="./scene.js"></script>

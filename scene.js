@@ -5,8 +5,15 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 
 const canvas = document.getElementById("webgl");
+const sceneRoot = document.getElementById("scene");
 const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isMobile = window.matchMedia("(max-width: 860px)").matches;
+
+const ACCENT = 0x4aa8ff;
+const ONLINE = 0x3ddc97;
+const Z0 = 11;
+const Z1 = 18;
+const ORBIT = 0.04;
 
 const renderer = new THREE.WebGLRenderer({
   canvas,
@@ -21,100 +28,101 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.05;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x04060a, 0.045);
+scene.fog = new THREE.FogExp2(0x04060a, 0.038);
 
-const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 80);
-camera.position.set(0, 1.4, 16);
+const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 80);
+if (reduce) camera.position.set(3.2, 1.35, Z0);
+else camera.position.set(0, 0.9, Z0);
 
-const nodeCount = isMobile ? 70 : 140;
-const nodes = [];
-const dummy = new THREE.Object3D();
+scene.add(new THREE.AmbientLight(0x4aa8ff, 0.18));
+scene.add(new THREE.HemisphereLight(0x4aa8ff, 0x04060a, 0.35));
 
-function fibSphere(i, n, radius) {
-  const offset = 2 / n;
-  const y = i * offset - 1 + offset / 2;
-  const r = Math.sqrt(1 - y * y);
-  const phi = i * 2.399963229728653;
-  return new THREE.Vector3(
-    Math.cos(phi) * r * radius,
-    y * radius * 0.72,
-    Math.sin(phi) * r * radius
-  );
-}
-
-const geo = new THREE.SphereGeometry(1, 12, 12);
-const matCore = new THREE.MeshBasicMaterial({ color: 0x9ef2ff });
-const matNode = new THREE.MeshBasicMaterial({ color: 0x5ce1ff });
-const inst = new THREE.InstancedMesh(geo, matNode, nodeCount);
-inst.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-
-const sizes = new Float32Array(nodeCount);
-for (let i = 0; i < nodeCount; i++) {
-  const p = fibSphere(i, nodeCount, 6.4);
-  // squash into a cinematic disk / torus-like cloud
-  p.x *= 1.35;
-  p.z *= 1.35;
-  const hub = i % 17 === 0;
-  const s = hub ? 0.085 : 0.028 + Math.random() * 0.03;
-  sizes[i] = s;
-  nodes.push({ p, hub, phase: Math.random() * Math.PI * 2 });
-  dummy.position.copy(p);
-  dummy.scale.setScalar(s);
-  dummy.updateMatrix();
-  inst.setMatrixAt(i, dummy.matrix);
-  inst.setColorAt(i, new THREE.Color(hub ? 0xe7fbff : 0x4ec8ea));
-}
-inst.instanceColor.setUsage(THREE.DynamicDrawUsage);
-scene.add(inst);
-
-const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.55, 1), matCore);
-scene.add(core);
-const ring = new THREE.Mesh(
-  new THREE.TorusGeometry(3.2, 0.008, 8, 128),
-  new THREE.MeshBasicMaterial({ color: 0x7ae7ff, transparent: true, opacity: 0.35 })
-);
-ring.rotation.x = Math.PI / 2.4;
-scene.add(ring);
-
-const linePos = [];
-const maxDist = isMobile ? 2.15 : 1.85;
-for (let i = 0; i < nodeCount; i++) {
-  for (let j = i + 1; j < nodeCount; j++) {
-    if (nodes[i].p.distanceTo(nodes[j].p) < maxDist) {
-      linePos.push(nodes[i].p.x, nodes[i].p.y, nodes[i].p.z);
-      linePos.push(nodes[j].p.x, nodes[j].p.y, nodes[j].p.z);
-    }
-  }
-}
-const lineGeo = new THREE.BufferGeometry();
-lineGeo.setAttribute("position", new THREE.Float32BufferAttribute(linePos, 3));
-const lines = new THREE.LineSegments(
-  lineGeo,
-  new THREE.LineBasicMaterial({
-    color: 0x3aa9c8,
-    transparent: true,
-    opacity: 0.22,
-    blending: THREE.AdditiveBlending,
+const coreGroup = new THREE.Group();
+const coreGeo = new THREE.IcosahedronGeometry(1, 1);
+const coreFill = new THREE.Mesh(
+  coreGeo,
+  new THREE.MeshStandardMaterial({
+    color: 0x123a66,
+    emissive: ACCENT,
+    emissiveIntensity: 1.35,
+    metalness: 0.28,
+    roughness: 0.32,
   })
 );
-scene.add(lines);
+coreFill.scale.setScalar(1.2);
+const coreWire = new THREE.LineSegments(
+  new THREE.WireframeGeometry(coreGeo),
+  new THREE.LineBasicMaterial({
+    color: 0xb7dcff,
+    transparent: true,
+    opacity: 0.7,
+  })
+);
+coreWire.scale.setScalar(1.21);
+const coreLight = new THREE.PointLight(ACCENT, 16, 18, 1.7);
+coreGroup.add(coreFill, coreWire, coreLight);
+scene.add(coreGroup);
 
-const pulseCount = isMobile ? 10 : 22;
-const pulseGeo = new THREE.SphereGeometry(1, 8, 8);
-const pulseMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-const pulses = new THREE.InstancedMesh(pulseGeo, pulseMat, pulseCount);
-const pulsePaths = [];
-for (let i = 0; i < pulseCount; i++) {
-  const a = nodes[Math.floor(Math.random() * nodeCount)].p.clone();
-  const b = nodes[Math.floor(Math.random() * nodeCount)].p.clone();
-  pulsePaths.push({ a, b, t: Math.random(), speed: 0.12 + Math.random() * 0.18 });
+const ringDefs = [
+  { name: "LAN", radius: 2.55, tiltX: 0.55, tiltZ: 0.72, nodes: 8, packets: 3 },
+  { name: "WAN", radius: 3.7, tiltX: 1.18, tiltZ: 0.18, nodes: 10, packets: 4 },
+  { name: "cloud", radius: 5.05, tiltX: 1.72, tiltZ: -0.42, nodes: 12, packets: 5 },
+];
+
+const nodeGeo = new THREE.IcosahedronGeometry(1, 0);
+const matNode = new THREE.MeshBasicMaterial({ color: ACCENT });
+const matHub = new THREE.MeshBasicMaterial({ color: ONLINE });
+const packetGeo = new THREE.SphereGeometry(1, 10, 10);
+const packetMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+const packets = [];
+
+for (const def of ringDefs) {
+  const group = new THREE.Group();
+  group.rotation.x = def.tiltX;
+  group.rotation.z = def.tiltZ;
+  group.name = def.name;
+
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(def.radius, 0.012, 8, 160),
+    new THREE.MeshBasicMaterial({
+      color: ACCENT,
+      transparent: true,
+      opacity: 0.42,
+    })
+  );
+  group.add(ring);
+
+  for (let i = 0; i < def.nodes; i++) {
+    const hub = i % 4 === 0;
+    const node = new THREE.Mesh(nodeGeo, hub ? matHub : matNode);
+    const theta = (i / def.nodes) * Math.PI * 2;
+    node.position.set(Math.cos(theta) * def.radius, Math.sin(theta) * def.radius, 0);
+    node.scale.setScalar(hub ? 0.09 : 0.045);
+    group.add(node);
+  }
+
+  for (let i = 0; i < def.packets; i++) {
+    const mesh = new THREE.Mesh(packetGeo, packetMat);
+    mesh.scale.setScalar(0.055);
+    const theta = (i / def.packets) * Math.PI * 2;
+    mesh.position.set(Math.cos(theta) * def.radius, Math.sin(theta) * def.radius, 0);
+    group.add(mesh);
+    packets.push({
+      mesh,
+      radius: def.radius,
+      theta,
+      speed: 0.35 + i * 0.08 + def.radius * 0.02,
+    });
+  }
+
+  scene.add(group);
 }
-scene.add(pulses);
 
 let composer = null;
 function resize() {
-  const w = canvas.clientWidth || window.innerWidth;
-  const h = canvas.clientHeight || window.innerHeight;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
   renderer.setSize(w, h, false);
@@ -126,9 +134,9 @@ try {
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    isMobile ? 0.55 : 0.85,
+    isMobile ? 0.55 : 1.0,
     0.7,
-    0.2
+    0.18
   );
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
@@ -136,64 +144,70 @@ try {
   composer = null;
 }
 
-function setCanvasSize() {
-  const parent = canvas.parentElement;
-  canvas.style.width = "100%";
-  canvas.style.height = "100%";
-  canvas.style.display = "block";
-  resize();
-}
-setCanvasSize();
-window.addEventListener("resize", setCanvasSize);
+resize();
+window.addEventListener("resize", resize);
 
 const clock = new THREE.Clock();
 let mouseX = 0;
 let mouseY = 0;
-window.addEventListener("pointermove", (e) => {
-  mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-  mouseY = (e.clientY / window.innerHeight) * 2 - 1;
-});
+if (!reduce) {
+  window.addEventListener("pointermove", (e) => {
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+  });
+}
+
+const services = document.getElementById("services");
+if (services && sceneRoot) {
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        sceneRoot.classList.toggle("is-dim", entry.isIntersecting);
+      }
+    },
+    { threshold: 0.08 }
+  );
+  io.observe(services);
+}
+
+function dollyZ() {
+  if (reduce) return Z0;
+  const hero = document.getElementById("top");
+  if (!hero) return Z0;
+  const rect = hero.getBoundingClientRect();
+  const h = Math.max(1, rect.height);
+  const p = Math.min(1, Math.max(0, -rect.top / h));
+  return Z0 + (Z1 - Z0) * p;
+}
+
+function render() {
+  if (composer) composer.render();
+  else renderer.render(scene, camera);
+}
 
 function tick() {
   const t = clock.getElapsedTime();
+  const radius = dollyZ();
+
   if (!reduce) {
-    const orbit = t * 0.08;
-    camera.position.x = Math.sin(orbit) * 16 + mouseX * 1.4;
-    camera.position.z = Math.cos(orbit) * 16;
-    camera.position.y = 1.4 + Math.sin(t * 0.22) * 0.45 + mouseY * 0.6;
-  }
-  camera.lookAt(0, 0, 0);
-  core.rotation.y = t * 0.25;
-  ring.rotation.z = t * 0.08;
-
-  for (let i = 0; i < nodeCount; i++) {
-    const n = nodes[i];
-    const s = sizes[i] * (1 + Math.sin(t * 1.6 + n.phase) * 0.12);
-    dummy.position.copy(n.p);
-    dummy.position.y += Math.sin(t * 0.5 + n.phase) * 0.06;
-    dummy.scale.setScalar(s);
-    dummy.updateMatrix();
-    inst.setMatrixAt(i, dummy.matrix);
-  }
-  inst.instanceMatrix.needsUpdate = true;
-
-  for (let i = 0; i < pulseCount; i++) {
-    const p = pulsePaths[i];
-    p.t += p.speed * 0.016;
-    if (p.t > 1) {
-      p.t = 0;
-      p.a.copy(nodes[Math.floor(Math.random() * nodeCount)].p);
-      p.b.copy(nodes[Math.floor(Math.random() * nodeCount)].p);
+    camera.position.x = Math.sin(t * ORBIT) * radius + mouseX * 1.25;
+    camera.position.z = Math.cos(t * ORBIT) * radius;
+    camera.position.y = 0.9 + Math.sin(t * 0.18) * 0.18 + mouseY * 0.5;
+    coreGroup.rotation.y = t * 0.22;
+    coreGroup.rotation.x = Math.sin(t * 0.12) * 0.08;
+    for (const p of packets) {
+      p.theta += p.speed * 0.016;
+      p.mesh.position.set(
+        Math.cos(p.theta) * p.radius,
+        Math.sin(p.theta) * p.radius,
+        0
+      );
     }
-    dummy.position.lerpVectors(p.a, p.b, p.t);
-    dummy.scale.setScalar(0.045);
-    dummy.updateMatrix();
-    pulses.setMatrixAt(i, dummy.matrix);
   }
-  pulses.instanceMatrix.needsUpdate = true;
 
-  if (composer) composer.render();
-  else renderer.render(scene, camera);
+  camera.lookAt(0, 0, 0);
+  render();
   requestAnimationFrame(tick);
 }
+
 tick();
