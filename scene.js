@@ -34,6 +34,20 @@ const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 80);
 if (reduce) camera.position.set(3.2, 1.35, Z0);
 else camera.position.set(0, 0.9, Z0);
 
+// Shift the core to the right of hero copy (local-space track after lookAt).
+function framingShift() {
+  const frac = isMobile ? 0.32 : 0.20;
+  const dist = Math.hypot(camera.position.x, camera.position.y, camera.position.z);
+  const halfW =
+    dist * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5)) * camera.aspect;
+  return frac * 2 * halfW;
+}
+
+function frameCamera() {
+  camera.lookAt(0, 0, 0);
+  camera.translateX(-framingShift());
+}
+
 scene.add(new THREE.AmbientLight(0x4aa8ff, 0.18));
 scene.add(new THREE.HemisphereLight(0x4aa8ff, 0x04060a, 0.35));
 
@@ -134,9 +148,9 @@ try {
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    isMobile ? 0.55 : 1.0,
-    0.7,
-    0.18
+    isMobile ? 0.48 : 0.86,
+    isMobile ? 0.38 : 0.42,
+    0.22
   );
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
@@ -157,17 +171,23 @@ if (!reduce) {
   });
 }
 
-const services = document.getElementById("services");
-if (services && sceneRoot) {
+const main = document.querySelector("main");
+const why = document.getElementById("why");
+if (main && sceneRoot) {
   const io = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
-        sceneRoot.classList.toggle("is-dim", entry.isIntersecting);
+        if (entry.target === main) {
+          sceneRoot.classList.toggle("is-dim", entry.isIntersecting);
+        } else if (entry.target === why) {
+          sceneRoot.classList.toggle("is-dim-more", entry.isIntersecting);
+        }
       }
     },
-    { threshold: 0.08 }
+    { threshold: 0.04 }
   );
-  io.observe(services);
+  io.observe(main);
+  if (why) io.observe(why);
 }
 
 function dollyZ() {
@@ -205,7 +225,7 @@ function tick() {
     }
   }
 
-  camera.lookAt(0, 0, 0);
+  frameCamera();
   render();
   requestAnimationFrame(tick);
 }
