@@ -50,6 +50,58 @@
   </section>
 
   <main>
+    <section id="magnet" class="magnet">
+      <div class="section-label">Εστίαση</div>
+      <h2>Σε έξι γραμμές.</h2>
+      <div class="magnet-grid">
+        <article class="magnet-tile magnet-tile--lg is-pending" data-magnet="firewall">
+          <svg class="magnet-rings" viewBox="0 0 240 180" fill="none" aria-hidden="true">
+            <ellipse cx="120" cy="90" rx="110" ry="44" stroke="#4AA8FF" stroke-opacity="0.28" stroke-width="1.2"/>
+            <ellipse cx="120" cy="90" rx="80" ry="32" stroke="#4AA8FF" stroke-opacity="0.4" stroke-width="1.2"/>
+            <ellipse cx="120" cy="90" rx="50" ry="20" stroke="#4AA8FF" stroke-opacity="0.55" stroke-width="1.15"/>
+            <circle cx="230" cy="90" r="2.6" fill="#4AA8FF"/>
+            <circle cx="10" cy="90" r="2.2" fill="#4AA8FF"/>
+            <circle cx="120" cy="46" r="2.3" fill="#4AA8FF"/>
+            <circle cx="120" cy="134" r="2.3" fill="#4AA8FF"/>
+            <circle cx="200" cy="90" r="2.1" fill="#4AA8FF"/>
+            <circle cx="40" cy="90" r="2.1" fill="#4AA8FF"/>
+            <circle cx="120" cy="58" r="2" fill="#4AA8FF"/>
+            <circle cx="170" cy="90" r="2.4" fill="#3DDC97"/>
+            <circle cx="70" cy="90" r="1.8" fill="#4AA8FF"/>
+            <circle cx="120" cy="70" r="1.7" fill="#4AA8FF"/>
+          </svg>
+          <div class="kicker">Firewall</div>
+          <h3>Firewall/UTM</h3>
+          <p>Το δίκτυο κλείνει σωστά.</p>
+        </article>
+        <article class="magnet-tile magnet-tile--sm is-pending" data-magnet="multiwan">
+          <div class="kicker">Multi-WAN</div>
+          <h3>Multi-WAN</h3>
+          <p>Η γραμμή πέφτει, η δουλειά όχι.</p>
+        </article>
+        <article class="magnet-tile magnet-tile--sm is-pending" data-magnet="cctv">
+          <div class="kicker">CCTV</div>
+          <h3>CCTV</h3>
+          <p>Κάμερες που γράφουν, όχι που διακοσμούν.</p>
+        </article>
+        <article class="magnet-tile magnet-tile--lg is-pending" data-magnet="erp">
+          <div class="kicker">ERP</div>
+          <h3>ERP</h3>
+          <p>Λογιστήριο και αποθήκη στον ίδιο server.</p>
+        </article>
+        <article class="magnet-tile magnet-tile--lg magnet-tile--live is-pending" data-magnet="watch">
+          <div class="kicker">24/7</div>
+          <h3>24/7</h3>
+          <p>Κάποιος κοιτάει όταν εσύ δεν είσαι εκεί.</p>
+        </article>
+        <article class="magnet-tile magnet-tile--sm is-pending" data-magnet="cloud">
+          <div class="kicker">Cloud</div>
+          <h3>Hetzner</h3>
+          <p>On-prem ή cloud. Ίδια διαχείριση.</p>
+        </article>
+      </div>
+    </section>
+
     <section id="services">
       <div class="section-label">Υπηρεσίες</div>
       <h2>Το φάσμα, χωρίς θόρυβο.</h2>
@@ -130,6 +182,28 @@
     nav.querySelectorAll("a").forEach((a) => {
       a.addEventListener("click", () => nav.classList.remove("open"));
     });
+
+    const magnetTiles = document.querySelectorAll(".magnet-tile");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) {
+      magnetTiles.forEach((el) => {
+        el.classList.remove("is-pending");
+        el.classList.add("is-in");
+      });
+    } else if (magnetTiles.length) {
+      const magnetIo = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            entry.target.classList.add("is-in");
+            entry.target.classList.remove("is-pending");
+            magnetIo.unobserve(entry.target);
+          }
+        },
+        { threshold: 0.16, rootMargin: "0px 0px -8% 0px" }
+      );
+      magnetTiles.forEach((el) => magnetIo.observe(el));
+    }
   </script>
 </body>
 </html>
