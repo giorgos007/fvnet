@@ -34,18 +34,12 @@ const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 80);
 if (reduce) camera.position.set(3.2, 1.35, Z0);
 else camera.position.set(0, 0.9, Z0);
 
-// Shift the core to the right of hero copy (local-space track after lookAt).
-function framingShift() {
-  const frac = isMobile ? 0.32 : 0.20;
-  const dist = Math.hypot(camera.position.x, camera.position.y, camera.position.z);
-  const halfW =
-    dist * Math.tan(THREE.MathUtils.degToRad(camera.fov * 0.5)) * camera.aspect;
-  return frac * 2 * halfW;
-}
-
-function frameCamera() {
-  camera.lookAt(0, 0, 0);
-  camera.translateX(-framingShift());
+// Shift the projection so the bright core sits right of (and above) the copy.
+function applyViewOffset(w, h) {
+  const mobile = w <= 860;
+  const ox = -(mobile ? 0.48 : 0.32) * w;
+  const oy = (mobile ? 0.24 : 0.08) * h;
+  camera.setViewOffset(w, h, ox, oy, w, h);
 }
 
 scene.add(new THREE.AmbientLight(0x4aa8ff, 0.18));
@@ -58,7 +52,7 @@ const coreFill = new THREE.Mesh(
   new THREE.MeshStandardMaterial({
     color: 0x123a66,
     emissive: ACCENT,
-    emissiveIntensity: 1.35,
+    emissiveIntensity: 0.95,
     metalness: 0.28,
     roughness: 0.32,
   })
@@ -73,7 +67,7 @@ const coreWire = new THREE.LineSegments(
   })
 );
 coreWire.scale.setScalar(1.21);
-const coreLight = new THREE.PointLight(ACCENT, 16, 18, 1.7);
+const coreLight = new THREE.PointLight(ACCENT, 10, 16, 1.7);
 coreGroup.add(coreFill, coreWire, coreLight);
 scene.add(coreGroup);
 
@@ -134,28 +128,39 @@ for (const def of ringDefs) {
 }
 
 let composer = null;
+let bloomPass = null;
+function tuneBloom(w) {
+  if (!bloomPass) return;
+  const mobile = w <= 860;
+  bloomPass.strength = mobile ? 0.26 : 0.62;
+  bloomPass.radius = mobile ? 0.14 : 0.28;
+  bloomPass.threshold = 0.28;
+}
 function resize() {
   const w = window.innerWidth;
   const h = window.innerHeight;
   camera.aspect = w / h;
+  applyViewOffset(w, h);
   camera.updateProjectionMatrix();
   renderer.setSize(w, h, false);
   if (composer) composer.setSize(w, h);
+  tuneBloom(w);
 }
 
 try {
   composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(
+  bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    isMobile ? 0.48 : 0.86,
-    isMobile ? 0.38 : 0.42,
-    0.22
+    0.62,
+    0.28,
+    0.28
   );
-  composer.addPass(bloom);
+  composer.addPass(bloomPass);
   composer.addPass(new OutputPass());
 } catch (e) {
   composer = null;
+  bloomPass = null;
 }
 
 resize();
@@ -225,7 +230,7 @@ function tick() {
     }
   }
 
-  frameCamera();
+  camera.lookAt(0, 0, 0);
   render();
   requestAnimationFrame(tick);
 }
