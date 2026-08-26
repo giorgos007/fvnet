@@ -528,30 +528,48 @@ footer {
 }
 .logo-strip-inner {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.logo-row {
+  display: flex;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
   gap: 36px;
-  max-width: 1120px;
-  margin: 0 auto;
 }
 .logo-strip img {
   height: 28px;
   width: auto;
-  max-width: 140px;
+  max-width: none;
   object-fit: contain;
   filter: none;
   opacity: 0.6;
   transition: opacity 0.2s ease;
+  flex: 0 0 auto;
 }
 .logo-strip img:hover {
   opacity: 1;
 }
 @media (max-width: 720px) {
+  .logo-strip {
+    padding: 24px 16px 28px;
+  }
   .logo-strip-inner {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 28px 24px;
-    justify-items: center;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px 10px;
+    width: 100%;
+  }
+  .logo-row { display: contents; }
+  .logo-strip img {
+    height: auto;
+    max-height: 22px;
+    max-width: 100%;
+    width: auto;
+    justify-self: center;
   }
 }
