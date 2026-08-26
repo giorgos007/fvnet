@@ -525,51 +525,54 @@ footer {
 .logo-strip {
   background: #0A0E16;
   padding: 28px 32px 32px;
+  overflow: visible;
 }
 .logo-strip-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 28px;
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 28px 16px;
   max-width: 1120px;
   margin: 0 auto;
-}
-.logo-row {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
   align-items: center;
-  gap: 36px;
+  justify-items: center;
 }
 .logo-strip img {
+  grid-column: span 2;
+  box-sizing: border-box;
   height: 28px;
   width: auto;
-  max-width: none;
+  max-width: 100%;
   object-fit: contain;
+  object-position: center;
   filter: none;
   opacity: 0.6;
   transition: opacity 0.2s ease;
-  flex: 0 0 auto;
 }
+.logo-strip img:nth-child(6) { grid-column: 2 / span 2; }
+.logo-strip img:nth-child(7) { grid-column: 4 / span 2; }
+.logo-strip img:nth-child(8) { grid-column: 6 / span 2; }
+.logo-strip img:nth-child(9) { grid-column: 8 / span 2; }
 .logo-strip img:hover {
   opacity: 1;
 }
 @media (max-width: 720px) {
   .logo-strip {
-    padding: 24px 16px 28px;
+    padding: 20px 12px 24px;
   }
   .logo-strip-inner {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 22px 10px;
+    gap: 20px 8px;
     width: 100%;
   }
-  .logo-row { display: contents; }
-  .logo-strip img {
-    height: auto;
-    max-height: 22px;
+  .logo-strip img,
+  .logo-strip img:nth-child(n) {
+    grid-column: auto;
+    width: 100%;
     max-width: 100%;
-    width: auto;
-    justify-self: center;
+    height: 20px;
+    object-fit: contain;
+    object-position: center;
+    justify-self: stretch;
   }
 }
