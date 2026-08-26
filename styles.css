@@ -405,6 +405,63 @@ h2 {
   border-top: 1px solid rgba(255,255,255,0.06);
   color: #c9d3df;
 }
+
+.partners {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 32px;
+  background: #0A0E16;
+}
+.partners-row {
+  list-style: none;
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+}
+.partners-row li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+}
+.partners-row img {
+  display: block;
+  height: 28px;
+  width: auto;
+  max-width: 148px;
+  object-fit: contain;
+  opacity: 0.6;
+  filter: brightness(0) invert(1);
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+.partners-row li:hover img {
+  opacity: 1;
+  filter: none;
+}
+.partner-veeam {
+  position: relative;
+}
+.partner-veeam img {
+  filter: none;
+}
+.partner-veeam .partner-mono {
+  opacity: 0.6;
+}
+.partner-veeam .partner-color {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+.partner-veeam:hover .partner-mono { opacity: 0; }
+.partner-veeam:hover .partner-color { opacity: 1; }
+
 .why p {
   color: var(--muted);
   font-size: 18px;
@@ -486,6 +543,11 @@ footer {
   .magnet-tile--sm { min-height: 128px; }
   .magnet-rings { width: min(280px, 70%); }
   .services-grid, .contact, .metrics { grid-template-columns: 1fr; }
+  .partners-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 36px;
+  }
   .nav { display: none; }
   .nav.open {
     display: flex;
@@ -519,4 +581,9 @@ footer {
     transition: none;
   }
   .magnet-tile--live::after { animation: none; }
+  .partners-row img,
+  .partner-veeam .partner-mono,
+  .partner-veeam .partner-color {
+    transition: none;
+  }
 }
