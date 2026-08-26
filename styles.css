@@ -540,12 +540,11 @@ footer {
   width: auto;
   max-width: 140px;
   object-fit: contain;
-  filter: brightness(0) invert(1);
+  filter: none;
   opacity: 0.6;
-  transition: opacity 0.2s ease, filter 0.2s ease;
+  transition: opacity 0.2s ease;
 }
 .logo-strip img:hover {
-  filter: none;
   opacity: 1;
 }
 @media (max-width: 720px) {
