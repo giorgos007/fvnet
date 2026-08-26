@@ -563,21 +563,22 @@ footer {
   justify-content: center;
   height: 28px;
 }
-.logo-veeam img {
+.logo-strip .logo-veeam img {
   filter: none;
 }
-.logo-veeam-mono {
+.logo-strip .logo-veeam-mono {
   opacity: 0.6;
 }
-.logo-veeam-color {
+.logo-strip .logo-veeam-color {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   opacity: 0;
+  filter: none;
 }
-.logo-veeam:hover .logo-veeam-mono { opacity: 0; }
-.logo-veeam:hover .logo-veeam-color { opacity: 1; filter: none; }
+.logo-strip .logo-veeam:hover .logo-veeam-mono { opacity: 0; }
+.logo-strip .logo-veeam:hover .logo-veeam-color { opacity: 1; filter: none; }
 @media (max-width: 860px) {
   .logo-strip-inner {
     display: grid;
