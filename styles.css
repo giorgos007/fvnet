@@ -520,3 +520,39 @@ footer {
   }
   .magnet-tile--live::after { animation: none; }
 }
+
+
+.logo-strip {
+  background: #0A0E16;
+  padding: 28px 32px 32px;
+}
+.logo-strip-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 36px;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.logo-strip img {
+  height: 28px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.6;
+  transition: opacity 0.2s ease, filter 0.2s ease;
+}
+.logo-strip img:hover {
+  filter: none;
+  opacity: 1;
+}
+@media (max-width: 720px) {
+  .logo-strip-inner {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px 24px;
+    justify-items: center;
+  }
+}
