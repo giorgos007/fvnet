@@ -371,6 +371,8 @@ h2 {
   border-radius: 18px;
   padding: 22px 22px 10px;
   overflow: hidden;
+  height: auto;
+  max-height: none;
 }
 .card::before {
   content: "";
@@ -389,8 +391,12 @@ h2 {
   font-size: 18px;
   margin-bottom: 14px;
 }
-.card ul { list-style: none; }
+.card ul {
+  list-style: none;
+  overflow: visible;
+}
 .card li {
+  display: block;
   font-family: Manrope, sans-serif;
   font-weight: 400;
   font-size: 14px;
