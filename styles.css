@@ -519,10 +519,18 @@ footer {
     transition: none;
   }
   .magnet-tile--live::after { animation: none; }
+  .logo-strip img,
+  .logo-veeam-mono,
+  .logo-veeam-color {
+    transition: none;
+  }
 }
 
 
 .logo-strip {
+  max-width: none;
+  width: 100%;
+  margin: 0;
   background: #0A0E16;
   padding: 28px 32px 32px;
 }
@@ -548,11 +556,33 @@ footer {
   filter: none;
   opacity: 1;
 }
-@media (max-width: 720px) {
+.logo-veeam {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+}
+.logo-veeam img {
+  filter: none;
+}
+.logo-veeam-mono {
+  opacity: 0.6;
+}
+.logo-veeam-color {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+.logo-veeam:hover .logo-veeam-mono { opacity: 0; }
+.logo-veeam:hover .logo-veeam-color { opacity: 1; filter: none; }
+@media (max-width: 860px) {
   .logo-strip-inner {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 28px 24px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 36px;
     justify-items: center;
   }
 }
