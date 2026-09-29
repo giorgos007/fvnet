@@ -11,9 +11,11 @@ const isMobile = window.matchMedia("(max-width: 860px)").matches;
 
 const ACCENT = 0x4aa8ff;
 const ONLINE = 0x3ddc97;
+const MAGENTA = 0xff6ad5;
+const TEAL = 0x5eead4;
 const Z0 = 11;
 const Z1 = 18;
-const ORBIT = 0.04;
+const ORBIT = 0.035;
 
 const renderer = new THREE.WebGLRenderer({
   canvas,
@@ -25,16 +27,35 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.25 : 1.75)
 renderer.setClearColor(0x000000, 0);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 1.08;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x04060a, 0.038);
+scene.fog = new THREE.FogExp2(0x07070c, 0.028);
 
-const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 80);
+function makeEnv() {
+  const c = document.createElement("canvas");
+  c.width = 256;
+  c.height = 128;
+  const ctx = c.getContext("2d");
+  const g = ctx.createLinearGradient(0, 0, 0, 128);
+  g.addColorStop(0, "#9ad8ff");
+  g.addColorStop(0.42, "#2a2458");
+  g.addColorStop(0.72, "#ff7ad9");
+  g.addColorStop(1, "#0b1220");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 256, 128);
+  const tex = new THREE.CanvasTexture(c);
+  tex.mapping = THREE.EquirectangularReflectionMapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+const envMap = makeEnv();
+scene.environment = envMap;
+
+const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 80);
 if (reduce) camera.position.set(3.2, 1.35, Z0);
-else camera.position.set(0, 0.9, Z0);
+else camera.position.set(0, 0.85, Z0);
 
-// Shift the projection so the bright core sits right of (and above) the copy.
 function applyViewOffset(w, h) {
   const mobile = w <= 860;
   const ox = -(mobile ? 0.48 : 0.32) * w;
@@ -42,33 +63,41 @@ function applyViewOffset(w, h) {
   camera.setViewOffset(w, h, ox, oy, w, h);
 }
 
-scene.add(new THREE.AmbientLight(0x4aa8ff, 0.18));
-scene.add(new THREE.HemisphereLight(0x4aa8ff, 0x04060a, 0.35));
+scene.add(new THREE.AmbientLight(0xffffff, 0.22));
+scene.add(new THREE.HemisphereLight(0xb8dcff, 0x1a1028, 0.55));
+
+const lightCyan = new THREE.PointLight(ACCENT, isMobile ? 10 : 16, 22, 1.6);
+lightCyan.position.set(4.2, 2.8, 4);
+scene.add(lightCyan);
+const lightMagenta = new THREE.PointLight(MAGENTA, isMobile ? 6 : 11, 20, 1.8);
+lightMagenta.position.set(-4.4, 1.2, 2.2);
+scene.add(lightMagenta);
+const lightTeal = new THREE.PointLight(TEAL, isMobile ? 5 : 8, 16, 1.9);
+lightTeal.position.set(0.4, -3.2, 3.2);
+scene.add(lightTeal);
 
 const coreGroup = new THREE.Group();
-const coreGeo = new THREE.IcosahedronGeometry(1, 1);
+const coreGeo = new THREE.IcosahedronGeometry(1.15, isMobile ? 2 : 4);
 const coreFill = new THREE.Mesh(
   coreGeo,
-  new THREE.MeshStandardMaterial({
-    color: 0x123a66,
-    emissive: ACCENT,
-    emissiveIntensity: 0.95,
-    metalness: 0.28,
-    roughness: 0.32,
+  new THREE.MeshPhysicalMaterial({
+    color: 0x8ecfff,
+    metalness: 0.18,
+    roughness: 0.1,
+    clearcoat: 1,
+    clearcoatRoughness: 0.08,
+    iridescence: 1,
+    iridescenceIOR: 1.28,
+    iridescenceThicknessRange: [120, 420],
+    sheen: 0.45,
+    sheenColor: new THREE.Color(0x7ae0ff),
+    emissive: 0x163a66,
+    emissiveIntensity: 0.32,
+    envMapIntensity: 1.45,
   })
 );
-coreFill.scale.setScalar(1.2);
-const coreWire = new THREE.LineSegments(
-  new THREE.WireframeGeometry(coreGeo),
-  new THREE.LineBasicMaterial({
-    color: 0xb7dcff,
-    transparent: true,
-    opacity: 0.7,
-  })
-);
-coreWire.scale.setScalar(1.21);
-const coreLight = new THREE.PointLight(ACCENT, 10, 16, 1.7);
-coreGroup.add(coreFill, coreWire, coreLight);
+const coreLight = new THREE.PointLight(ACCENT, 8, 14, 1.8);
+coreGroup.add(coreFill, coreLight);
 scene.add(coreGroup);
 
 const ringDefs = [
@@ -77,13 +106,32 @@ const ringDefs = [
   { name: "cloud", radius: 5.05, tiltX: 1.72, tiltZ: -0.42, nodes: 12, packets: 5 },
 ];
 
-const nodeGeo = new THREE.IcosahedronGeometry(1, 0);
-const matNode = new THREE.MeshBasicMaterial({ color: ACCENT });
-const matHub = new THREE.MeshBasicMaterial({ color: ONLINE });
-const packetGeo = new THREE.SphereGeometry(1, 10, 10);
-const packetMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const nodeGeo = new THREE.SphereGeometry(1, 16, 16);
+const matNode = new THREE.MeshPhysicalMaterial({
+  color: ACCENT,
+  roughness: 0.22,
+  metalness: 0.2,
+  emissive: ACCENT,
+  emissiveIntensity: 0.45,
+});
+const matHub = new THREE.MeshPhysicalMaterial({
+  color: ONLINE,
+  roughness: 0.18,
+  metalness: 0.15,
+  emissive: ONLINE,
+  emissiveIntensity: 0.55,
+});
+const packetGeo = new THREE.SphereGeometry(1, 12, 12);
+const packetMat = new THREE.MeshPhysicalMaterial({
+  color: 0xffffff,
+  roughness: 0.12,
+  metalness: 0.05,
+  emissive: 0xffffff,
+  emissiveIntensity: 0.35,
+});
 
 const packets = [];
+const ringGroups = [];
 
 for (const def of ringDefs) {
   const group = new THREE.Group();
@@ -92,11 +140,15 @@ for (const def of ringDefs) {
   group.name = def.name;
 
   const ring = new THREE.Mesh(
-    new THREE.TorusGeometry(def.radius, 0.012, 8, 160),
-    new THREE.MeshBasicMaterial({
+    new THREE.TorusGeometry(def.radius, 0.018, 12, 180),
+    new THREE.MeshPhysicalMaterial({
       color: ACCENT,
+      roughness: 0.28,
+      metalness: 0.35,
+      emissive: ACCENT,
+      emissiveIntensity: 0.22,
       transparent: true,
-      opacity: 0.42,
+      opacity: 0.7,
     })
   );
   group.add(ring);
@@ -106,13 +158,13 @@ for (const def of ringDefs) {
     const node = new THREE.Mesh(nodeGeo, hub ? matHub : matNode);
     const theta = (i / def.nodes) * Math.PI * 2;
     node.position.set(Math.cos(theta) * def.radius, Math.sin(theta) * def.radius, 0);
-    node.scale.setScalar(hub ? 0.09 : 0.045);
+    node.scale.setScalar(hub ? 0.1 : 0.05);
     group.add(node);
   }
 
   for (let i = 0; i < def.packets; i++) {
     const mesh = new THREE.Mesh(packetGeo, packetMat);
-    mesh.scale.setScalar(0.055);
+    mesh.scale.setScalar(0.06);
     const theta = (i / def.packets) * Math.PI * 2;
     mesh.position.set(Math.cos(theta) * def.radius, Math.sin(theta) * def.radius, 0);
     group.add(mesh);
@@ -125,6 +177,39 @@ for (const def of ringDefs) {
   }
 
   scene.add(group);
+  ringGroups.push(group);
+}
+
+const blobGeo = new THREE.SphereGeometry(1, isMobile ? 20 : 32, isMobile ? 20 : 32);
+const blobPalette = [ACCENT, MAGENTA, TEAL];
+const blobs = [];
+const blobCount = isMobile ? 4 : 7;
+for (let i = 0; i < blobCount; i++) {
+  const mesh = new THREE.Mesh(
+    blobGeo,
+    new THREE.MeshPhysicalMaterial({
+      color: blobPalette[i % 3],
+      roughness: 0.16,
+      metalness: 0.08,
+      clearcoat: 0.9,
+      clearcoatRoughness: 0.16,
+      iridescence: 0.85,
+      iridescenceIOR: 1.25,
+      iridescenceThicknessRange: [80, 320],
+      transparent: true,
+      opacity: 0.78,
+      envMapIntensity: 1.2,
+    })
+  );
+  mesh.scale.setScalar(0.16 + (i % 3) * 0.07);
+  scene.add(mesh);
+  blobs.push({
+    mesh,
+    radius: 2.1 + i * 0.42,
+    speed: 0.11 + i * 0.025,
+    phase: i * 0.9,
+    y: (i % 2 === 0 ? 0.55 : -0.45) * (0.4 + (i % 3) * 0.2),
+  });
 }
 
 let composer = null;
@@ -132,9 +217,9 @@ let bloomPass = null;
 function tuneBloom(w) {
   if (!bloomPass) return;
   const mobile = w <= 860;
-  bloomPass.strength = mobile ? 0.26 : 0.62;
-  bloomPass.radius = mobile ? 0.14 : 0.28;
-  bloomPass.threshold = 0.28;
+  bloomPass.strength = mobile ? 0.32 : 0.72;
+  bloomPass.radius = mobile ? 0.22 : 0.42;
+  bloomPass.threshold = 0.22;
 }
 function resize() {
   const w = window.innerWidth;
@@ -152,9 +237,9 @@ try {
   composer.addPass(new RenderPass(scene, camera));
   bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.62,
-    0.28,
-    0.28
+    0.72,
+    0.42,
+    0.22
   );
   composer.addPass(bloomPass);
   composer.addPass(new OutputPass());
@@ -169,10 +254,12 @@ window.addEventListener("resize", resize);
 const clock = new THREE.Clock();
 let mouseX = 0;
 let mouseY = 0;
+let targetX = 0;
+let targetY = 0;
 if (!reduce) {
   window.addEventListener("pointermove", (e) => {
-    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
-    mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+    targetX = (e.clientX / window.innerWidth) * 2 - 1;
+    targetY = (e.clientY / window.innerHeight) * 2 - 1;
   });
 }
 
@@ -215,11 +302,14 @@ function tick() {
   const radius = dollyZ();
 
   if (!reduce) {
-    camera.position.x = Math.sin(t * ORBIT) * radius + mouseX * 1.25;
+    mouseX += (targetX - mouseX) * 0.06;
+    mouseY += (targetY - mouseY) * 0.06;
+    camera.position.x = Math.sin(t * ORBIT) * radius + mouseX * 1.55;
     camera.position.z = Math.cos(t * ORBIT) * radius;
-    camera.position.y = 0.9 + Math.sin(t * 0.18) * 0.18 + mouseY * 0.5;
-    coreGroup.rotation.y = t * 0.22;
-    coreGroup.rotation.x = Math.sin(t * 0.12) * 0.08;
+    camera.position.y = 0.85 + Math.sin(t * 0.18) * 0.16 + mouseY * 0.62;
+    coreGroup.rotation.y = t * 0.18;
+    coreGroup.rotation.x = Math.sin(t * 0.11) * 0.1;
+    coreFill.rotation.y = t * 0.08;
     for (const p of packets) {
       p.theta += p.speed * 0.016;
       p.mesh.position.set(
@@ -227,6 +317,17 @@ function tick() {
         Math.sin(p.theta) * p.radius,
         0
       );
+    }
+    for (const b of blobs) {
+      const a = t * b.speed + b.phase;
+      b.mesh.position.set(
+        Math.cos(a) * b.radius,
+        b.y + Math.sin(a * 1.4) * 0.35,
+        Math.sin(a) * b.radius * 0.55
+      );
+    }
+    for (let i = 0; i < ringGroups.length; i++) {
+      ringGroups[i].rotation.y = t * (0.04 + i * 0.012);
     }
   }
 
