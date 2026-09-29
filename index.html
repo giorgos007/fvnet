@@ -193,6 +193,7 @@
     <span>© Fotis Vassis / FVNET</span>
   </footer>
 
+  <div class="test-env" id="test-env" hidden>TEST · όχι live</div>
   <script type="module" src="./scene.js"></script>
   <script>
     const btn = document.getElementById("menu");
@@ -204,6 +205,11 @@
 
     const magnetTiles = document.querySelectorAll(".magnet-tile");
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const prodHosts = new Set(["fvnet.gr", "www.fvnet.gr", "giorgos007.github.io"]);
+    const testEnv = document.getElementById("test-env");
+    if (testEnv && !prodHosts.has(location.hostname)) {
+      testEnv.hidden = false;
+    }
     if (reduceMotion) {
       magnetTiles.forEach((el) => {
         el.classList.remove("is-pending");

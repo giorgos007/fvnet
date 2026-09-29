@@ -503,6 +503,23 @@ footer {
 
 .menu-btn { display: none; background: none; color: var(--ink); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; }
 
+.test-env {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 50;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(255, 106, 213, 0.16);
+  border: 1px solid rgba(255, 106, 213, 0.35);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ffd6f3;
+  backdrop-filter: blur(14px);
+}
+.test-env[hidden] { display: none !important; }
+
 @media (max-width: 860px) {
   .magnet-grid {
     grid-template-columns: 1fr;
